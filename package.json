@@ -1,0 +1,21 @@
+{
+  "name": "verify-before-capture",
+  "version": "1.0.0",
+  "description": "PayPal Authorize-Before-Capture safety verification layer for AI shopping agents",
+  "scripts": {
+    "server": "node server/index.js",
+    "client": "npm run dev --prefix client",
+    "dev": "node server/index.js"
+  },
+  "keywords": [
+    "paypal",
+    "ai-agents",
+    "agentic-commerce",
+    "genai",
+    "nextjs",
+    "mui"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+
