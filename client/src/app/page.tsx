@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   ThemeProvider,
-  createTheme,
   CssBaseline,
   Box,
   Container,
@@ -21,105 +20,19 @@ import {
   AlertTitle,
   Paper,
   Stack,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
-  Security,
   ShoppingCart,
   WarningAmber,
   CheckCircle,
   Cancel,
   HelpOutline,
-  Storefront,
-  OpenInNew,
-  Refresh,
   BugReport,
   ThumbUp,
   ThumbDown,
 } from '@mui/icons-material';
-
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: { main: '#0070ba' }, // PayPal Blue
-    secondary: { main: '#00cf92' },
-    background: { default: '#0a0f1d', paper: '#11192e' },
-  },
-  typography: {
-    fontFamily: '"IBM Plex Sans", "Inter", system-ui, sans-serif',
-  },
-});
-
-const POSITIVE_FLAGS = new Set([
-  'verified_seller',
-  'exact_spec_match',
-  'within_budget',
-  'price_ok',
-  'spec_match',
-  'trusted_seller',
-  'clean_page',
-]);
-
-const RISK_FLAGS = new Set([
-  'prompt_injection',
-  'price_cap_exceeded',
-  'budget_exceeded',
-  'unknown_seller',
-  'unverified_seller',
-  'unrated_seller',
-  'refurbished',
-  'refurbished_item',
-  'spec_mismatch',
-  'capacity_mismatch',
-  'verifier_error',
-]);
-
-function getFlagChipProps(flag: string) {
-  const normalized = flag.toLowerCase().trim();
-  if (POSITIVE_FLAGS.has(normalized)) {
-    return { color: 'success' as const, variant: 'outlined' as const };
-  }
-  if (RISK_FLAGS.has(normalized)) {
-    return { color: 'error' as const, variant: 'outlined' as const };
-  }
-  return {
-    variant: 'outlined' as const,
-    sx: { color: '#94a3b8', borderColor: '#475569' },
-  };
-}
-
-interface Verdict {
-  itemMatch: number;
-  sellerTrust: number;
-  priceOk: boolean;
-  injectionDetected: boolean;
-  confidence: number;
-  reasons: string[];
-  flags: string[];
-  hardViolations: string[];
-  decision: 'CAPTURE' | 'REVIEW' | 'VOID';
-}
-
-interface Run {
-  id: string;
-  scenario: string;
-  mandate: { text: string; maxPrice: number };
-  product: { id: string; name: string; price: number; seller: string };
-  agentReasoning: string;
-  authId?: string;
-  authorizedAmount?: number;
-  status:
-    | 'AWAITING_BUYER_APPROVAL'
-    | 'CAPTURED'
-    | 'CAPTURED_BY_HUMAN'
-    | 'VOIDED'
-    | 'VOIDED_BY_HUMAN'
-    | 'PENDING_HUMAN'
-    | 'ERROR';
-  verdict?: Verdict;
-  createdAt: string;
-}
+import Navbar from '../components/Navbar';
+import { darkTheme, Run, getFlagChipProps } from '../theme';
 
 export default function DashboardPage() {
   const [scenario, setScenario] = useState('clean');
@@ -187,70 +100,39 @@ export default function DashboardPage() {
   const getStatusChip = (status: string) => {
     switch (status) {
       case 'CAPTURED':
-        return <Chip icon={<CheckCircle />} label="Auto Captured" color="success" />;
+        return <Chip icon={<CheckCircle sx={{ color: '#00cf92 !important', fontSize: 16 }} />} label="Auto Captured" size="small" variant="outlined" sx={{ color: '#00cf92', borderColor: '#00cf92', fontWeight: 600 }} />;
       case 'CAPTURED_BY_HUMAN':
-        return <Chip icon={<CheckCircle />} label="Human Approved" color="success" />;
+        return <Chip icon={<CheckCircle sx={{ color: '#00cf92 !important', fontSize: 16 }} />} label="Human Approved" size="small" variant="outlined" sx={{ color: '#00cf92', borderColor: '#00cf92', fontWeight: 600 }} />;
       case 'VOIDED':
-        return <Chip icon={<Cancel />} label="Auto Voided / Blocked" color="error" />;
+        return <Chip icon={<Cancel sx={{ color: '#ef5350 !important', fontSize: 16 }} />} label="Auto Voided" size="small" variant="outlined" sx={{ color: '#ef5350', borderColor: '#ef5350', fontWeight: 600 }} />;
       case 'VOIDED_BY_HUMAN':
-        return <Chip icon={<Cancel />} label="Human Rejected" color="error" />;
+        return <Chip icon={<Cancel sx={{ color: '#ef5350 !important', fontSize: 16 }} />} label="Human Rejected" size="small" variant="outlined" sx={{ color: '#ef5350', borderColor: '#ef5350', fontWeight: 600 }} />;
       case 'PENDING_HUMAN':
-        return <Chip icon={<WarningAmber />} label="Needs Human Review" color="warning" />;
+        return <Chip icon={<WarningAmber sx={{ color: '#f5a623 !important', fontSize: 16 }} />} label="Needs Human Review" size="small" variant="outlined" sx={{ color: '#f5a623', borderColor: '#f5a623', fontWeight: 600 }} />;
       case 'AWAITING_BUYER_APPROVAL':
-        return <Chip icon={<HelpOutline />} label="Awaiting Sandbox Approval" color="info" />;
+        return <Chip icon={<HelpOutline sx={{ color: '#9aa8c0 !important', fontSize: 16 }} />} label="Awaiting Sandbox Approval" size="small" variant="outlined" sx={{ color: '#9aa8c0', borderColor: '#475569', fontWeight: 600 }} />;
       default:
-        return <Chip label={status} />;
+        return <Chip label={status} size="small" variant="outlined" sx={{ color: '#9aa8c0', borderColor: '#475569' }} />;
     }
   };
 
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Box sx={{ minHeight: '100vh', pb: 6 }}>
-        {/* Top Header */}
-        <Box sx={{ bgcolor: '#0b1329', borderBottom: '1px solid #1e293b', py: 3, px: 4 }}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <Security sx={{ fontSize: 36, color: '#0070ba' }} />
-              <Box>
-                <Typography variant="h5" fontWeight={700} sx={{ letterSpacing: '-0.5px' }}>
-                  Verify Before Capture
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                  AI Shopping Agent Guard with PayPal Two-Stage Authorize & Capture Protocol
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<Storefront />}
-                endIcon={<OpenInNew />}
-                href="/store/poisoned"
-                target="_blank"
-                size="small"
-              >
-                Inspect Mock Store
-              </Button>
-              <IconButton onClick={fetchRuns} color="inherit">
-                <Refresh />
-              </IconButton>
-            </Stack>
-          </Stack>
-        </Box>
+      <Box sx={{ minHeight: '100vh', bgcolor: '#0a0f1d', pb: 6 }}>
+        {/* Shared Top Navigation */}
+        <Navbar onRefresh={fetchRuns} />
 
         <Container maxWidth="xl" sx={{ mt: 4 }}>
           <Grid container spacing={3}>
             {/* Left Control Column */}
             <Grid item xs={12} md={4}>
-              <Card sx={{ border: '1px solid #1e293b', position: 'sticky', top: 20 }}>
+              <Card sx={{ border: '1px solid #1e293b', position: 'sticky', top: 80, bgcolor: '#11192e' }}>
                 <CardContent>
-                  <Typography variant="h6" fontWeight={600} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <ShoppingCart color="primary" /> Agent Mandate
+                  <Typography variant="h6" fontWeight={600} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#e8edf7' }}>
+                    <ShoppingCart sx={{ color: '#0070ba' }} /> Agent Mandate
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  <Typography variant="body2" sx={{ color: '#9aa8c0', mb: 3 }}>
                     Configure the human instructions and simulate attack/edge scenarios.
                   </Typography>
 
@@ -295,22 +177,21 @@ export default function DashboardPage() {
 
                     <Button
                       variant="contained"
-                      color="primary"
                       size="large"
                       onClick={handleRunAgent}
                       disabled={loading}
-                      sx={{ py: 1.5, fontWeight: 700 }}
+                      sx={{ py: 1.5, fontWeight: 700, bgcolor: '#0070ba', '&:hover': { bgcolor: '#005ea6' } }}
                     >
                       {loading ? 'Agent Shopping & Ordering...' : 'Dispatch AI Agent'}
                     </Button>
                   </Stack>
 
-                  <Divider sx={{ my: 3 }} />
+                  <Divider sx={{ my: 3, borderColor: '#1e293b' }} />
 
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  <Typography variant="subtitle2" sx={{ color: '#9aa8c0', fontWeight: 600 }} gutterBottom>
                     Autonomous Safety Protocol:
                   </Typography>
-                  <Box sx={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.6 }}>
+                  <Box sx={{ fontSize: '0.8rem', color: '#9aa8c0', lineHeight: 1.6 }}>
                     1. <b>Agent</b> selects item & triggers PayPal <code>AUTHORIZE</code> (funds held, buyer not charged).<br />
                     2. <b>Independent LLM + Hard Rules Verifier</b> analyzes order, prompt injection flags, and trust.<br />
                     3. <b>Decision Gate</b>:
@@ -330,16 +211,16 @@ export default function DashboardPage() {
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 {[
                   { label: 'Total Agent Orders', val: runs.length, color: '#38bdf8' },
-                  { label: 'Auto Captured', val: runs.filter((r) => r.status.startsWith('CAPTURED')).length, color: '#4ade80' },
-                  { label: 'Blocked & Voided', val: runs.filter((r) => r.status.startsWith('VOIDED')).length, color: '#f87171' },
-                  { label: 'Pending Human', val: runs.filter((r) => r.status === 'PENDING_HUMAN').length, color: '#fbbf24' },
+                  { label: 'Auto Captured', val: runs.filter((r) => r.status.startsWith('CAPTURED')).length, color: '#00cf92' },
+                  { label: 'Blocked & Voided', val: runs.filter((r) => r.status.startsWith('VOIDED')).length, color: '#ef5350' },
+                  { label: 'Pending Human', val: runs.filter((r) => r.status === 'PENDING_HUMAN').length, color: '#f5a623' },
                 ].map((s, idx) => (
                   <Grid item xs={6} sm={3} key={idx}>
-                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#11192e', border: '1px solid #1e293b' }}>
+                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#11192e', border: '1px solid #1e293b', borderRadius: '8px' }}>
                       <Typography variant="h4" fontWeight={800} sx={{ color: s.color }}>
                         {s.val}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" sx={{ color: '#9aa8c0' }}>
                         {s.label}
                       </Typography>
                     </Paper>
@@ -349,28 +230,28 @@ export default function DashboardPage() {
 
               {/* Runs Feed */}
               {runs.length === 0 ? (
-                <Paper sx={{ p: 6, textAlign: 'center', bgcolor: '#11192e', border: '1px dashed #334155' }}>
-                  <Typography variant="h6" color="text.secondary">
+                <Paper sx={{ p: 6, textAlign: 'center', bgcolor: '#11192e', border: '1px dashed #1e293b', borderRadius: '8px' }}>
+                  <Typography variant="h6" sx={{ color: '#e8edf7', fontWeight: 600 }}>
                     No runs recorded yet
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#9aa8c0', mt: 1 }}>
                     Select a scenario on the left and click <b>Dispatch AI Agent</b> to begin.
                   </Typography>
                 </Paper>
               ) : (
                 <Stack spacing={3}>
                   {runs.map((run) => (
-                    <Card key={run.id} sx={{ border: '1px solid #1e293b', bgcolor: '#11192e' }}>
-                      <CardContent>
+                    <Card key={run.id} sx={{ border: '1px solid #1e293b', bgcolor: '#11192e', borderRadius: '8px' }}>
+                      <CardContent sx={{ p: 3 }}>
                         <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={1}>
                           <Box>
-                            <Typography variant="h6" fontWeight={700}>
+                            <Typography variant="h6" fontWeight={700} sx={{ color: '#e8edf7' }}>
                               {run.product.name} — ${run.product.price}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+                            <Typography variant="body2" sx={{ color: '#9aa8c0' }}>
                               Seller: <b>{run.product.seller}</b>
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#64748b' }}>
+                            <Typography variant="caption" sx={{ color: '#9aa8c0' }}>
                               Mandate: "{run.mandate.text}" (Cap: ${run.mandate.maxPrice}) &middot; Scenario: {run.scenario}
                             </Typography>
                           </Box>
@@ -379,11 +260,11 @@ export default function DashboardPage() {
 
                         {/* Agent Reasoning */}
                         {run.agentReasoning && (
-                          <Box sx={{ mt: 2, p: 1.5, bgcolor: '#0b1329', borderRadius: 1, border: '1px solid #1e293b' }}>
+                          <Box sx={{ mt: 2, p: 1.5, bgcolor: '#0b1329', borderRadius: '6px', border: '1px solid #1e293b' }}>
                             <Typography variant="caption" sx={{ color: '#38bdf8', fontWeight: 600, display: 'block', mb: 0.5 }}>
                               AI Agent Reasoning:
                             </Typography>
-                            <Typography variant="body2" sx={{ color: '#cbd5e1' }}>
+                            <Typography variant="body2" sx={{ color: '#e8edf7' }}>
                               "{run.agentReasoning}"
                             </Typography>
                           </Box>
@@ -393,7 +274,7 @@ export default function DashboardPage() {
                         {run.verdict && (
                           <Box sx={{ mt: 3 }}>
                             <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
-                              <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 600 }}>
+                              <Typography variant="caption" sx={{ color: '#9aa8c0', fontWeight: 600 }}>
                                 Safety Confidence Score:
                               </Typography>
                               <Typography
@@ -402,10 +283,10 @@ export default function DashboardPage() {
                                 sx={{
                                   color:
                                     run.verdict.confidence >= thresholds.capture
-                                      ? '#4ade80'
+                                      ? '#00cf92'
                                       : run.verdict.confidence >= thresholds.review
-                                      ? '#fbbf24'
-                                      : '#f87171',
+                                      ? '#f5a623'
+                                      : '#ef5350',
                                 }}
                               >
                                 {run.verdict.confidence} / 100 ({run.verdict.decision})
@@ -421,14 +302,14 @@ export default function DashboardPage() {
                                 '& .MuiLinearProgress-bar': {
                                   bgcolor:
                                     run.verdict.confidence >= thresholds.capture
-                                      ? '#4ade80'
+                                      ? '#00cf92'
                                       : run.verdict.confidence >= thresholds.review
-                                      ? '#fbbf24'
-                                      : '#f87171',
+                                      ? '#f5a623'
+                                      : '#ef5350',
                                 },
                               }}
                             />
-                            <Stack direction="row" justifyContent="space-between" sx={{ mt: 0.5, fontSize: '0.7rem', color: '#64748b' }}>
+                            <Stack direction="row" justifyContent="space-between" sx={{ mt: 0.5, fontSize: '0.7rem', color: '#9aa8c0' }}>
                               <span>0 (Auto-Void)</span>
                               <span>{thresholds.review} (Review Gate)</span>
                               <span>{thresholds.capture} (Auto-Capture)</span>
@@ -441,14 +322,14 @@ export default function DashboardPage() {
                         {run.verdict && (
                           <Box sx={{ mt: 2 }}>
                             {run.verdict.injectionDetected && (
-                              <Alert severity="error" icon={<BugReport />} sx={{ mb: 1 }}>
+                              <Alert severity="error" icon={<BugReport />} sx={{ mb: 1, bgcolor: '#2a1215', color: '#ef5350', border: '1px solid #ef5350' }}>
                                 <AlertTitle sx={{ fontWeight: 700 }}>Prompt Injection Detected!</AlertTitle>
                                 Untrusted page content attempted to hijack the shopping agent instructions. Payment authorization halted.
                               </Alert>
                             )}
 
                             {/* Reasons list */}
-                            <Box component="ul" sx={{ pl: 2, m: 0, fontSize: '0.85rem', color: '#cbd5e1' }}>
+                            <Box component="ul" sx={{ pl: 2, m: 0, fontSize: '0.85rem', color: '#e8edf7' }}>
                               {(run.verdict.hardViolations || []).concat(run.verdict.reasons || []).map((r, i) => (
                                 <li key={i}>{r}</li>
                               ))}
@@ -460,7 +341,7 @@ export default function DashboardPage() {
                                 <Chip key={i} label={f} size="small" {...getFlagChipProps(f)} />
                               ))}
                               {run.authId && (
-                                <Chip label={`Auth ID: ${run.authId}`} size="small" variant="outlined" sx={{ color: '#64748b' }} />
+                                <Chip label={`Auth ID: ${run.authId}`} size="small" variant="outlined" sx={{ color: '#9aa8c0', borderColor: '#334155', fontSize: '0.75rem' }} />
                               )}
                             </Stack>
                           </Box>
@@ -468,17 +349,17 @@ export default function DashboardPage() {
 
                         {/* Human Review Action Buttons */}
                         {run.status === 'PENDING_HUMAN' && (
-                          <Box sx={{ mt: 3, p: 2, bgcolor: '#1e2238', borderRadius: 1, border: '1px solid #fbbf24' }}>
-                            <Typography variant="subtitle2" sx={{ color: '#fbbf24', fontWeight: 700, mb: 1 }}>
+                          <Box sx={{ mt: 3, p: 2, bgcolor: '#1e2238', borderRadius: '6px', border: '1px solid #f5a623' }}>
+                            <Typography variant="subtitle2" sx={{ color: '#f5a623', fontWeight: 700, mb: 1 }}>
                               Human Review Required:
                             </Typography>
-                            <Typography variant="body2" sx={{ mb: 2, color: '#e2e8f0' }}>
+                            <Typography variant="body2" sx={{ mb: 2, color: '#e8edf7' }}>
                               The verifier rated confidence at {run.verdict?.confidence} due to ambiguity (e.g. refurbished condition or unverified merchant). As the human supervisor, do you want to approve and capture, or reject and void?
                             </Typography>
                             <Stack direction="row" spacing={2}>
                               <Button
                                 variant="contained"
-                                color="success"
+                                sx={{ bgcolor: '#00cf92', color: '#0a0f1d', fontWeight: 700, '&:hover': { bgcolor: '#00b37e' } }}
                                 startIcon={<ThumbUp />}
                                 onClick={() => handleDecision(run.id, true)}
                               >
@@ -486,7 +367,7 @@ export default function DashboardPage() {
                               </Button>
                               <Button
                                 variant="outlined"
-                                color="error"
+                                sx={{ color: '#ef5350', borderColor: '#ef5350', fontWeight: 700, '&:hover': { bgcolor: 'rgba(239, 83, 80, 0.1)' } }}
                                 startIcon={<ThumbDown />}
                                 onClick={() => handleDecision(run.id, false)}
                               >
@@ -507,4 +388,3 @@ export default function DashboardPage() {
     </ThemeProvider>
   );
 }
-
