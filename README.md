@@ -32,7 +32,7 @@ Instead of allowing an AI agent to execute immediate payments, **Verify Before C
 [Autonomous Shopping Agent] ──► (Scrapes store, chooses item)
       │
       ▼
-[PayPal AUTHORIZE Order] ──► Funds placed in escrow HOLD (buyer NOT charged yet)
+[PayPal AUTHORIZE Order] ──► Funds placed on HOLD (buyer not charged yet)
       │
       ▼
 [Independent Verifier Guard]

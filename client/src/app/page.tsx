@@ -51,6 +51,44 @@ const darkTheme = createTheme({
   },
 });
 
+const POSITIVE_FLAGS = new Set([
+  'verified_seller',
+  'exact_spec_match',
+  'within_budget',
+  'price_ok',
+  'spec_match',
+  'trusted_seller',
+  'clean_page',
+]);
+
+const RISK_FLAGS = new Set([
+  'prompt_injection',
+  'price_cap_exceeded',
+  'budget_exceeded',
+  'unknown_seller',
+  'unverified_seller',
+  'unrated_seller',
+  'refurbished',
+  'refurbished_item',
+  'spec_mismatch',
+  'capacity_mismatch',
+  'verifier_error',
+]);
+
+function getFlagChipProps(flag: string) {
+  const normalized = flag.toLowerCase().trim();
+  if (POSITIVE_FLAGS.has(normalized)) {
+    return { color: 'success' as const, variant: 'outlined' as const };
+  }
+  if (RISK_FLAGS.has(normalized)) {
+    return { color: 'error' as const, variant: 'outlined' as const };
+  }
+  return {
+    variant: 'outlined' as const,
+    sx: { color: '#94a3b8', borderColor: '#475569' },
+  };
+}
+
 interface Verdict {
   itemMatch: number;
   sellerTrust: number;
@@ -273,7 +311,7 @@ export default function DashboardPage() {
                     Autonomous Safety Protocol:
                   </Typography>
                   <Box sx={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.6 }}>
-                    1. <b>Agent</b> selects item & triggers PayPal <code>AUTHORIZE</code> (funds locked in escrow).<br />
+                    1. <b>Agent</b> selects item & triggers PayPal <code>AUTHORIZE</code> (funds held, buyer not charged).<br />
                     2. <b>Independent LLM + Hard Rules Verifier</b> analyzes order, prompt injection flags, and trust.<br />
                     3. <b>Decision Gate</b>:
                     <ul style={{ paddingLeft: 16, margin: '4px 0' }}>
@@ -419,7 +457,7 @@ export default function DashboardPage() {
                             {/* Tag Chips */}
                             <Stack direction="row" spacing={1} sx={{ mt: 1.5 }} flexWrap="wrap">
                               {run.verdict.flags?.map((f, i) => (
-                                <Chip key={i} label={f} size="small" variant="outlined" color="error" />
+                                <Chip key={i} label={f} size="small" {...getFlagChipProps(f)} />
                               ))}
                               {run.authId && (
                                 <Chip label={`Auth ID: ${run.authId}`} size="small" variant="outlined" sx={{ color: '#64748b' }} />

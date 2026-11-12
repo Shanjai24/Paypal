@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "PayPal Authorize-Before-Capture safety verification layer for AI shopping agents",
   "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
     "server": "node server/index.js",
     "client": "npm run dev --prefix client",
     "dev": "node server/index.js"
@@ -15,7 +16,7 @@
     "nextjs",
     "mui"
   ],
-  "author": "",
+  "author": "Shanjai M R",
   "license": "MIT"
 }
 
