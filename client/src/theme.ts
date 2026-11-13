@@ -140,3 +140,4 @@ export function getFlagChipProps(flag: string) {
     sx: { color: '#9aa8c0', borderColor: '#334155', fontWeight: 500, fontSize: '0.75rem' },
   };
 }
+

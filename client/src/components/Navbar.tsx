@@ -150,3 +150,4 @@ export default function Navbar({ onRefresh }: NavbarProps) {
     </Box>
   );
 }
+

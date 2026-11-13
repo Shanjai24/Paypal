@@ -395,3 +395,4 @@ export default function ActivityPage() {
     </ThemeProvider>
   );
 }
+
